@@ -11,15 +11,13 @@ import org.springframework.web.util.HtmlUtils;
 public class GreetingController {
 
     /**
-     * 浏览器对我（服务端）说hello，我（服务端）就表示欢迎
+     * 浏览器对服务端说hello，服务端表示欢迎
      */
     @MessageMapping("/hello")
     @SendTo("/topic/greetings")
     public Greeting handleHello(HelloMessage helloMessage) throws InterruptedException {
         Thread.sleep(3000);
-        System.out.println("Tid is " + Thread.currentThread().getId());
-        System.out.println("Tid name " + Thread.currentThread().getName());
-        return new Greeting("Yeap,how about you ? " + HtmlUtils.htmlEscape(helloMessage.getName()) + ".");
+        return new Greeting("I'm fine,how about you ? " + HtmlUtils.htmlEscape(helloMessage.getName()) + ".");
     }
 
 }

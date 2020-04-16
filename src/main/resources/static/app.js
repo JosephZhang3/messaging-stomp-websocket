@@ -13,19 +13,29 @@ function setConnected(connected) {
 }
 
 function connect() {
-    var socket = new SockJS('/myapp-websocket');
+    var socket = new SockJS('localhost:9090/ma');//构造器参数为websocket服务器url
     stompClient = Stomp.over(socket);
-    stompClient.connect({}, function (frame) {
-        setConnected(true);
-        console.log('Connected: ' + frame);
-        stompClient.subscribe('/topic/greetings', function (greeting) {
-            showGreeting(JSON.parse(greeting.body).content);
-        });
+    stompClient.connect(
+        {},
+        function connectCallBack(frame) {
+            //连接
+            setConnected(true);
+            console.log('connect websocket success : ' + frame);
 
-        stompClient.subscribe('/topic/notify',function (notify) {
-            showNotify(JSON.parse(notify.body).nTime);
-        })
-    });
+            //订阅
+            stompClient.subscribe('/topic/redCount/f8fc7e3330564f83b854a1c15b8bce1c', function (notify) {
+                showNotify(JSON.parse(notify.body));
+            });
+            console.log('subscribe red count success : ');
+
+            //初始化拉取一次消息
+            stompClient.send("/queryRedCount/f8fc7e3330564f83b854a1c15b8bce1c",[],'');
+            console.log('init red count success : ');
+        },
+        function errorCallBack() {
+            connect();
+        }
+    );
 }
 
 function disconnect() {
@@ -44,6 +54,7 @@ function showGreeting(message) {
     $("#greetings").append("<tr><td>" + message + "</td></tr>");
 }
 
+//展示消息内容
 function showNotify(message) {
     console.log("Received push msg: "+message);
     $("#notifySomeThing").append("<tr><td>" + message + "</td></tr>");
